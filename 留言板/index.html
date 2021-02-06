@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="css/index.css">
+  <script src="lib/jquery-1.12.4.min.js"></script>
+  <script src="lib/template-native.js"></script>
+  <script type="text/html" id="tem">
+    <% for (let i = 0; i < commons.length; i++) { %>
+      <li uid=<%= commons[i].id %>>
+        <p class="floor"><%= commons[i].id %>楼<a href="javascript:;" class="delete">删除</a></p>
+        <p class="author">层主：<span class="name"><%= commons[i].username %></span></p>
+        <p class="content"><%= commons[i].content %></p>
+      </li>
+    <% } %>
+  </script>
+  <script>
+    $('document').ready(function () {
+      $.ajax({
+        url: 'http://localhost:3000/db',
+        type: 'GET',
+        success: function (data) {
+          $('.list').html(template('tem', data))
+          delData()
+        }
+      })
+      $('.btn').click(function () {
+        let username = $('.user').val()
+        let content = $('.editor').val()
+        $.post('http://localhost:3000/commons', {
+          'username': username,
+          'content': content
+        }, function (data) {
+          $('.list').append(template('tem', {'commons': [data]}))
+          delData()
+        })
+      })
+
+    })
+
+    // 封装删除
+    function delData() {
+      $('.delete').click(function () {
+            $.ajax({
+              url: 'http://localhost:3000/commons/' + $(this).parents('li').attr('uid'),
+              type: 'DELETE',
+            })
+            $(this).parents('li').remove()
+          })
+    }
+  </script>
+</head>
+
+<body>
+  <div class="main">
+    <div class="post">
+      <h2>新年快乐</h2>
+      <p class="author">楼主：行痴</p>
+      <p class="txt">新的一年，祝大家新年快乐，身体健康，升职加薪！</p>
+    </div>
+    <div class="reply">
+      <h4>发表回复</h4>
+      <p>用户名：<input type="text" class="user"></p>
+      <textarea class="editor"></textarea>
+      <input type="button" value="发表" class="btn">
+    </div>
+    <div class="cmts">
+      <ul class="list">
+
+      </ul>
+    </div>
+  </div>
+
+</body>
+
+</html>
